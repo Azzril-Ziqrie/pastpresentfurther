@@ -10,6 +10,7 @@ if (isset($_GET['currency']) && in_array(strtoupper($_GET['currency']), ['IDR', 
 $currentCurrency = $_SESSION['currency'] ?? 'IDR';
 
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/page-content.php';
 
 $search   = isset($_GET['search'])   ? trim((string) $_GET['search'])   : '';
 $category = isset($_GET['category']) ? trim((string) $_GET['category']) : '';
@@ -53,6 +54,8 @@ if ($joinCategory) {
     try { $catStmt = $pdo->query("SELECT DISTINCT category AS name, LOWER(REPLACE(category, ' ', '-')) AS slug FROM products WHERE category IS NOT NULL AND category <> '' ORDER BY category ASC"); $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC); } catch (Throwable $e) {}
 }
 
+/* ── teks halaman (diedit di dashboard: Page text) ───── */
+$pageContent = ppf_page_load($pdo, 'stockist');
 ?>
 <!doctype html>
 <html lang="en">
@@ -65,22 +68,14 @@ if ($joinCategory) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap">
   <link rel="stylesheet" href="assets/css/site.css?v=<?= filemtime(__DIR__ . '/assets/css/site.css') ?>">
-  <style>
-/* ── STOCKIST ────────────────────────────────────────── */
-.stockist strong{display:block;margin-bottom:8px;font-size:15px;font-weight:700}
-.stockist p{font-size:10px}
-  </style>
+  <link rel="stylesheet" href="assets/css/static-pages.css?v=<?= filemtime(__DIR__ . '/assets/css/static-pages.css') ?>">
 </head>
 <body>
   <?php if (file_exists(__DIR__ . '/includes/loader.php')) include_once __DIR__ . '/includes/loader.php'; ?>
   <?php include __DIR__ . '/includes/site-header.php'; ?>
 
   <main class="legal-wrapper">
-    <section class="legal-section stockist">
-      <h2>Indonesia</h2>
-      <strong>Orbis</strong>
-      <p>Jl. Panglima Polim V No.38, Melawai, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12160</p>
-    </section>
+    <?= ppf_page_render('stockist', $pageContent) ?>
   </main>
 
   <?php include __DIR__ . '/includes/site-footer.php'; ?>

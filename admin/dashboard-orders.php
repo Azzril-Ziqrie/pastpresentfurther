@@ -35,6 +35,36 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+/**
+ * Ambil item untuk semua order sekaligus (1 query), dikelompokkan per order_id.
+ *
+ * @param  int[] $orderIds
+ * @return array<int, array<int, array<string, mixed>>>
+ */
+function fetchItemsGroupedByOrder(PDO $pdo, array $orderIds): array
+{
+    if (!$orderIds) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    $stmt = $pdo->prepare(
+        "SELECT order_id, product_name, size_name, quantity
+         FROM order_items
+         WHERE order_id IN ($placeholders)
+         ORDER BY id ASC"
+    );
+    $stmt->execute($orderIds);
+
+    $grouped = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $item) {
+        $grouped[(int) $item['order_id']][] = $item;
+    }
+    return $grouped;
+}
+
+$itemsByOrder = fetchItemsGroupedByOrder($pdo, array_map('intval', array_column($orders, 'id')));
+
 function formatAdminMoney(string $currency, float $amount): string
 {
     return strtoupper($currency) . ' ' . number_format($amount, 2, '.', ',');
@@ -229,6 +259,9 @@ function badgeClass(string $status): string
       gap: 8px;
       flex-wrap: wrap;
     }
+    .order-item { font-size: 13px; line-height: 1.5; margin-bottom: 6px; }
+    .order-item:last-child { margin-bottom: 0; }
+    .order-item__meta { display: block; color: #888; font-size: 12px; }
     .mini-btn {
       min-height: 36px;
       padding: 0 12px;
@@ -297,6 +330,7 @@ function badgeClass(string $status): string
             <tr>
               <th>Order</th>
               <th>Customer</th>
+              <th>Items</th>
               <th>Total</th>
               <th>Payment</th>
               <th>Fulfillment</th>
@@ -309,7 +343,7 @@ function badgeClass(string $status): string
           <tbody>
             <?php if (!$orders): ?>
               <tr>
-                <td colspan="9" style="color:#888;">No orders found.</td>
+                <td colspan="10" style="color:#888;">No orders found.</td>
               </tr>
             <?php else: ?>
               <?php foreach ($orders as $order): ?>
@@ -322,6 +356,22 @@ function badgeClass(string $status): string
                     <?= htmlspecialchars($order['full_name']) ?><br>
                     <span style="color:#888;font-size:12px;"><?= htmlspecialchars($order['email']) ?></span><br>
                     <span style="color:#888;font-size:12px;"><?= htmlspecialchars($order['phone']) ?></span>
+                  </td>
+                  <td>
+                    <?php $orderItems = $itemsByOrder[(int) $order['id']] ?? []; ?>
+                    <?php if (!$orderItems): ?>
+                      <span style="color:#aaa;">—</span>
+                    <?php else: ?>
+                      <?php foreach ($orderItems as $item): ?>
+                        <div class="order-item">
+                          <?= htmlspecialchars($item['product_name']) ?>
+                          <span class="order-item__meta">
+                            Size: <?= htmlspecialchars((string) ($item['size_name'] ?: '-')) ?>
+                            &times; <?= (int) $item['quantity'] ?>
+                          </span>
+                        </div>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
                   </td>
                   <td><?= htmlspecialchars(formatAdminMoney($order['currency'], (float) $order['grand_total'])) ?></td>
                   <td>

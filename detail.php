@@ -68,18 +68,18 @@ $pageTitle = $blog ? $blog['title'] : 'Not found';
 .blog-detail-container{max-width:800px;margin:0 auto;padding:60px 28px 100px;animation:pageFadeIn .5s ease both}
 .blog-detail-header{margin-bottom:40px}
 .blog-detail-header h1{font-size:10px;font-weight:700;line-height:1.5;margin-bottom:8px}
-.blog-detail-meta{display:flex;flex-direction:column;gap:2px;color:#777;font-weight:500}
+.blog-detail-meta{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-weight:500}
 .blog-detail-meta .subtitle{color:var(--ink);font-weight:700}
-.blog-detail-main-img{display:block;width:100%;height:60vh;object-fit:cover;background:#fff;margin:0 auto 40px}
-.blog-detail-content{font-size:10px;font-weight:400;line-height:1.9;letter-spacing:.02em;color:#333;text-transform:none;margin-bottom:60px}
+.blog-detail-main-img{display:block;width:100%;height:60vh;object-fit:cover;background:var(--media);margin:0 auto 40px}
+.blog-detail-content{font-size:10px;font-weight:400;line-height:1.9;letter-spacing:.02em;color:var(--text-2);text-transform:none;margin-bottom:60px}
 .blog-detail-extra{margin-top:40px}
 .blog-detail-gallery{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:10px;width:100%;margin-bottom:20px;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;cursor:grab}
 .blog-detail-gallery::-webkit-scrollbar{display:none}
 .blog-detail-gallery:has(img:only-child){justify-content:center}
 .blog-detail-gallery.is-dragging{cursor:grabbing;scroll-snap-type:none}
-.blog-detail-gallery img{flex:0 0 100%;width:100%;height:60vh;object-fit:cover;background:#fff;scroll-snap-align:center;user-select:none;-webkit-user-drag:none;pointer-events:none}
-.blog-pagination{text-align:center;color:#aaa;margin-bottom:40px}
-.empty-state{padding:120px 14px;text-align:center;color:#999}
+.blog-detail-gallery img{flex:0 0 100%;width:100%;height:60vh;object-fit:cover;background:var(--media);scroll-snap-align:center;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.blog-pagination{text-align:center;color:var(--faint);margin-bottom:40px}
+.empty-state{padding:120px 14px;text-align:center;color:var(--faint)}
 @media(max-width:560px){
   .blog-detail-container{padding:40px 18px 80px}
   .blog-detail-main-img{height:auto;max-height:80vh;object-fit:contain}
@@ -93,7 +93,7 @@ $pageTitle = $blog ? $blog['title'] : 'Not found';
   <?php include __DIR__ . '/includes/site-header.php'; ?>
 
   <?php if (!$blog): ?>
-    <main><div class="empty-state">Article not found. <a href="research.php" style="text-decoration:underline">Back to research</a></div></main>
+    <main><div class="empty-state">Article not found. <a href="further-research.php" style="text-decoration:underline">Back to research</a></div></main>
   <?php else: ?>
   <main class="blog-detail-container">
     <div class="blog-detail-header">

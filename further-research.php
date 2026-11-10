@@ -59,13 +59,13 @@ $stmt = $pdo->query($query);
 .blog-card:nth-child(2){animation-delay:.05s}
 .blog-card:nth-child(3){animation-delay:.1s}
 .blog-card:nth-child(n+4){animation-delay:.15s}
-.blog-image{aspect-ratio:3/2;background:#fff;overflow:hidden}
+.blog-image{aspect-ratio:3/2;background:var(--media);overflow:hidden}
 .blog-image img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
 .blog-card:hover .blog-image img{transform:scale(1.02)}
 .blog-meta{display:flex;flex-direction:column;gap:6px;padding:10px 7px 28px}
 .blog-title{font-size:10px;font-weight:700;line-height:1.4}
-.blog-author{font-weight:500;color:#777}
-.empty-state{padding:120px 14px;text-align:center;color:#999}
+.blog-author{font-weight:500;color:var(--muted)}
+.empty-state{padding:120px 14px;text-align:center;color:var(--faint)}
 @media(max-width:900px){.blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
   .blog-grid{grid-template-columns:minmax(0,1fr);gap:0}

@@ -27,7 +27,7 @@ $itemStmt = $pdo->prepare("
     ORDER BY id ASC
 ");
 $itemStmt->execute(['order_id' => $order['id']]);
-$items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+$orderItems = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $logsStmt = $pdo->prepare("
     SELECT *
@@ -48,11 +48,19 @@ if ($fulfillmentStatus === '') {
     $fulfillmentStatus = 'pending';
 }
 
+$totalPieces = (int) array_sum(array_column($orderItems, 'quantity'));
+
 $success = trim((string) ($_GET['success'] ?? ''));
 
 function detailMoney(string $currency, float $amount): string
 {
     return strtoupper($currency) . ' ' . number_format($amount, 2, '.', ',');
+}
+
+function itemSizeLabel(array $item): string
+{
+    $size = trim((string) ($item['size_name'] ?? ''));
+    return $size !== '' ? $size : '-';
 }
 
 function statusBadgeClass(string $status): string
@@ -203,6 +211,51 @@ function statusBadgeClass(string $status): string
     .status.processing { border-color: #111; }
     .status.pending { border-color: #bdbdbd; }
 
+
+    /* --- ORDER ITEMS (kartu, selebar panel) --- */
+    body.adm .panel--wide { grid-column: 1 / -1; border-right: 0; }
+    body.adm .panel-head .count { font-weight: 400; color: #86868b; font-size: 13px; }
+    body.adm .order-items { list-style: none; margin: 0; padding: 0; }
+    body.adm .order-item {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e5ea;
+    }
+    body.adm .order-item:first-child { padding-top: 0; }
+    body.adm .order-item:last-child  { border-bottom: 0; padding-bottom: 4px; }
+    body.adm .order-item__thumb {
+      width: 64px; height: 80px; object-fit: cover;
+      border-radius: 10px; background: #f5f5f7; border: 1px solid #e5e5ea;
+    }
+    body.adm .order-item__thumb--empty { display: block; }
+    body.adm .order-item__name  { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+    body.adm .order-item__slug  { font-size: 12px; color: #86868b; margin-top: 2px; word-break: break-all; }
+    body.adm .chip {
+      display: inline-block; margin: 8px 6px 0 0; padding: 3px 11px;
+      border-radius: 999px; background: #f5f5f7; font-size: 12px; color: #1d1d1f;
+    }
+    body.adm .chip b { font-weight: 600; }
+    body.adm .order-item__money { text-align: right; white-space: nowrap; }
+    body.adm .order-item__total { font-size: 15px; font-weight: 600; }
+    body.adm .order-item__unit  { font-size: 12px; color: #86868b; margin-top: 2px; }
+
+    body.adm .order-summary { max-width: 360px; margin: 18px 0 0 auto; padding-top: 14px; border-top: 1px solid #e5e5ea; }
+    body.adm .order-summary__row { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; font-size: 13px; color: #6e6e73; }
+    body.adm .order-summary__row--grand {
+      margin-top: 8px; padding-top: 12px; border-top: 1px solid #1d1d1f;
+      font-size: 18px; font-weight: 650; letter-spacing: -.02em; color: #1d1d1f;
+    }
+    body.adm .order-notes { margin-top: 18px; padding: 12px 14px; border-radius: 10px; background: #f5f5f7; font-size: 13px; }
+    body.adm .order-notes__label { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: #86868b; margin-bottom: 4px; }
+
+    @media (max-width: 640px) {
+      body.adm .order-item { grid-template-columns: 52px minmax(0, 1fr); }
+      body.adm .order-item__thumb { width: 52px; height: 66px; }
+      body.adm .order-item__money { grid-column: 2; text-align: left; }
+    }
     .table-wrap {
       overflow: auto;
       border: 1px solid #bdbdbd;
@@ -249,135 +302,84 @@ function statusBadgeClass(string $status): string
       .panel { border-right: 0; }
     }
 
-    /* --- STYLING KHUSUS UNTUK PRINT LABEL --- */
-    .print-label-area {
-      display: none;
-    }
+    /* --- LABEL PENGIRIMAN (cetak 100 x 150 mm) --- */
+    .print-label-area { display: none; }
 
     @media print {
-      @page {
-        size: 100mm 150mm;
-        margin: 0; /* Penting untuk menghilangkan header url & footer page bawaan browser */
-      }
-      
-      /* BENAR-BENAR MENGHILANGKAN ELEMEN WEB AGAR TIDAK ADA BLANK SPACE */
-      body > *:not(.print-label-area) {
-        display: none !important;
-      }
-      
-      html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff !important;
-      }
-      
+      @page { size: 100mm 150mm; margin: 0; }
+
+      body > *:not(.print-label-area) { display: none !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+
       .print-label-area {
         display: block !important;
         width: 100mm;
-        height: 148mm; /* Sedikit kurang dari 150mm agar tidak nembus page 2 */
-        padding: 4mm;
-        box-sizing: border-box;
+        height: 148mm;
+        padding: 5mm;
         background: #fff;
         color: #000;
-        font-family: Arial, sans-serif;
+        font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
         overflow: hidden;
         page-break-after: avoid;
         page-break-inside: avoid;
-      }
-
-      .resi-box {
-        border: 2px solid #000;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        border-radius: 6px;
-      }
-
-      .resi-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid #000;
-        padding: 12px;
-      }
-
-      .resi-courier {
-        font-size: 22px;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .resi-order-no {
-        font-size: 12px;
-        text-align: right;
-      }
-
-      .resi-addresses {
-        display: flex;
-        border-bottom: 2px solid #000;
-      }
-
-      .resi-sender, .resi-receiver {
-        width: 50%;
-        padding: 12px;
-      }
-
-      .resi-receiver {
-        border-left: 2px solid #000;
-      }
-
-      .resi-section-title {
-        font-size: 10px;
-        text-transform: uppercase;
-        color: #555;
-        margin-bottom: 6px;
-        font-weight: bold;
-      }
-
-      .resi-text {
-        font-size: 13px;
-        line-height: 1.4;
-        margin: 0;
-      }
-      
-      .resi-text strong {
-        font-size: 16px;
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .resi-items {
-        padding: 12px;
-        flex-grow: 1;
-      }
-
-      .print-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: auto;
-        margin-top: 5px;
-      }
-
-      .print-table th, .print-table td {
-        border: 1px solid #000;
-        padding: 6px;
-        font-size: 12px;
-        text-align: left;
-      }
-
-      .print-table th {
-        background: #eee !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
 
-      .resi-footer {
-        text-align: center;
-        font-size: 11px;
-        padding: 8px;
-        font-weight: bold;
-        border-top: 1px dashed #000;
+      .label {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: .35mm solid #000;
+        border-radius: 4mm;
+        overflow: hidden;
       }
+
+      .label__section { padding: 4mm 4.5mm; border-bottom: .25mm solid #000; }
+      .label__section:last-child { border-bottom: 0; }
+
+      .label__eyebrow {
+        margin: 0 0 1.2mm;
+        font-size: 6.5pt;
+        font-weight: 600;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: #444;
+      }
+
+      /* Kurir + nomor order */
+      .label__top { display: flex; justify-content: space-between; align-items: flex-end; gap: 4mm; }
+      .label__courier { margin: 0; font-size: 20pt; font-weight: 700; letter-spacing: -.03em; line-height: 1; text-transform: uppercase; }
+      .label__service { margin: 1.2mm 0 0; font-size: 8pt; color: #444; }
+      .label__order   { text-align: right; font-size: 7.5pt; line-height: 1.35; }
+      .label__order strong { display: block; font-size: 8.5pt; letter-spacing: .02em; }
+
+      /* Penerima & pengirim */
+      .label__receiver-name { margin: 0 0 1mm; font-size: 14pt; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+      .label__text { margin: 0; font-size: 9.5pt; line-height: 1.4; }
+      .label__sender { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; font-size: 8pt; }
+      .label__sender strong { font-size: 8.5pt; letter-spacing: .06em; }
+
+      /* Isi paket */
+      .label__items { flex: 1; min-height: 0; overflow: hidden; }
+      .label__items-head { display: flex; justify-content: space-between; align-items: baseline; }
+      .label__list { list-style: none; margin: 0; padding: 0; }
+      .label__item {
+        display: grid;
+        grid-template-columns: 9mm minmax(0, 1fr) auto;
+        gap: 2.5mm;
+        align-items: baseline;
+        padding: 1.6mm 0;
+        border-top: .2mm solid #999;
+        font-size: 9.5pt;
+        line-height: 1.25;
+      }
+      .label__item:first-child { border-top: 0; }
+      .label__qty  { font-weight: 700; font-size: 11pt; }
+      .label__name { font-weight: 600; }
+      .label__size { font-size: 8.5pt; padding: .4mm 2.2mm; border: .25mm solid #000; border-radius: 99mm; white-space: nowrap; }
+
+      .label__footer { text-align: center; font-size: 7pt; letter-spacing: .04em; color: #333; padding: 2.5mm 4mm; }
     }
   </style>
   <link rel="stylesheet" href="../assets/css/admin.css?v=<?= filemtime(__DIR__ . '/../assets/css/admin.css') ?>">
@@ -469,43 +471,65 @@ function statusBadgeClass(string $status): string
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-head">Order Items</div>
+      <div class="panel panel--wide">
+        <div class="panel-head">
+          <span>Order Items</span>
+          <span class="count"><?= count($orderItems) ?> item<?= count($orderItems) === 1 ? '' : 's' ?> &middot; <?= $totalPieces ?> pcs</span>
+        </div>
         <div class="panel-body">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Size</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php if (!$items): ?>
-                  <tr>
-                    <td colspan="5">No order items found.</td>
-                  </tr>
-                <?php else: ?>
-                  <?php foreach ($items as $item): ?>
-                    <tr>
-                      <td><?= htmlspecialchars($item['product_name']) ?></td>
-                      <td><?= htmlspecialchars((string) $item['size_name']) ?></td>
-                      <td><?= (int) $item['quantity'] ?></td>
-                      <td><?= htmlspecialchars(detailMoney($order['currency'], (float) $item['price'])) ?></td>
-                      <td><?= htmlspecialchars(detailMoney($order['currency'], (float) $item['line_total'])) ?></td>
-                    </tr>
-                  <?php endforeach; ?>
-                <?php endif; ?>
-              </tbody>
-            </table>
-          </div>
+          <?php if (!$orderItems): ?>
+            <p class="sub">No order items found.</p>
+          <?php else: ?>
+            <ul class="order-items">
+              <?php foreach ($orderItems as $item): ?>
+                <li class="order-item">
+                  <?php if (!empty($item['thumbnail'])): ?>
+                    <img class="order-item__thumb" src="../<?= htmlspecialchars($item['thumbnail']) ?>" alt="" loading="lazy">
+                  <?php else: ?>
+                    <span class="order-item__thumb order-item__thumb--empty"></span>
+                  <?php endif; ?>
+
+                  <div>
+                    <div class="order-item__name"><?= htmlspecialchars($item['product_name']) ?></div>
+                    <div class="order-item__slug"><?= htmlspecialchars($item['product_slug']) ?></div>
+                    <span class="chip">Size <b><?= htmlspecialchars(itemSizeLabel($item)) ?></b></span>
+                    <span class="chip">Qty <b><?= (int) $item['quantity'] ?></b></span>
+                  </div>
+
+                  <div class="order-item__money">
+                    <div class="order-item__total"><?= htmlspecialchars(detailMoney($order['currency'], (float) $item['line_total'])) ?></div>
+                    <div class="order-item__unit"><?= htmlspecialchars(detailMoney($order['currency'], (float) $item['price'])) ?> each</div>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+
+            <div class="order-summary">
+              <div class="order-summary__row">
+                <span>Subtotal</span>
+                <span><?= htmlspecialchars(detailMoney($order['currency'], (float) $order['subtotal'])) ?></span>
+              </div>
+              <div class="order-summary__row">
+                <span>Shipping (<?= htmlspecialchars(trim(($order['courier_code'] ?? '') . ' ' . ($order['courier_service'] ?? ''))) ?>)</span>
+                <span><?= htmlspecialchars(detailMoney($order['currency'], (float) $order['shipping_cost'])) ?></span>
+              </div>
+              <div class="order-summary__row order-summary__row--grand">
+                <span>Total</span>
+                <span><?= htmlspecialchars(detailMoney($order['currency'], (float) $order['grand_total'])) ?></span>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <?php if (!empty($order['notes'])): ?>
+            <div class="order-notes">
+              <div class="order-notes__label">Order notes</div>
+              <?= nl2br(htmlspecialchars($order['notes'])) ?>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel panel--wide">
         <div class="panel-head">Status Logs</div>
         <div class="panel-body">
           <div class="table-wrap">
@@ -541,70 +565,58 @@ function statusBadgeClass(string $status): string
     </section>
   </main>
 
-  <!-- AREA PRINT LABEL PENGIRIMAN -->
+  <!-- LABEL PENGIRIMAN (hanya tampil saat dicetak) -->
   <div class="print-label-area">
-    <div class="resi-box">
-      
-      <!-- Header Resi -->
-      <div class="resi-header">
-        <div class="resi-courier">
-          <?= htmlspecialchars($order['courier_code']) ?> - <?= htmlspecialchars($order['courier_service']) ?>
+    <div class="label">
+
+      <div class="label__section label__top">
+        <div>
+          <p class="label__eyebrow">Courier</p>
+          <p class="label__courier"><?= htmlspecialchars((string) $order['courier_code']) ?></p>
+          <p class="label__service"><?= htmlspecialchars((string) $order['courier_service']) ?></p>
         </div>
-        <div class="resi-order-no">
-          Order No:<br><strong><?= htmlspecialchars($order['order_number']) ?></strong>
+        <div class="label__order">
+          Order No.
+          <strong><?= htmlspecialchars($order['order_number']) ?></strong>
         </div>
       </div>
 
-      <!-- Info Pengirim & Penerima -->
-      <div class="resi-addresses">
-        <div class="resi-sender">
-          <div class="resi-section-title">Pengirim:</div>
-          <p class="resi-text">
-            <strong>PASTPRESENTFURTHER</strong>
-            
-          </p>
-        </div>
-        <div class="resi-receiver">
-          <div class="resi-section-title">Penerima:</div>
-          <p class="resi-text">
-            <strong><?= htmlspecialchars($order['full_name']) ?></strong>
-            <?= htmlspecialchars($order['phone']) ?><br>
-            <?= htmlspecialchars(trim(($order['address_line_1'] ?? '') . ' ' . ($order['address_line_2'] ?? ''))) ?><br>
-            <?= htmlspecialchars(trim(($order['city'] ?? '') . ', ' . ($order['state'] ?? ''))) ?><br>
-            <?= htmlspecialchars(trim(($order['postal_code'] ?? '') . ', ' . ($order['country_name'] ?? ''))) ?>
-          </p>
-        </div>
+      <div class="label__section">
+        <p class="label__eyebrow">Ship to</p>
+        <p class="label__receiver-name"><?= htmlspecialchars($order['full_name']) ?></p>
+        <p class="label__text">
+          <?= htmlspecialchars($order['phone']) ?><br>
+          <?= htmlspecialchars(trim(($order['address_line_1'] ?? '') . ' ' . ($order['address_line_2'] ?? ''))) ?><br>
+          <?= htmlspecialchars(trim(($order['city'] ?? '') . ', ' . ($order['state'] ?? ''), ' ,')) ?><br>
+          <?= htmlspecialchars(trim(($order['postal_code'] ?? '') . ', ' . ($order['country_name'] ?? ''), ' ,')) ?>
+        </p>
       </div>
 
-      <!-- Ringkasan Barang -->
-      <div class="resi-items">
-        <div class="resi-section-title">Isi Paket:</div>
-        <table class="print-table">
-          <thead>
-            <tr>
-              <th style="width: 15%; text-align: center;">Qty</th>
-              <th>Nama Produk</th>
-              <th style="width: 25%;">Size</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($items as $item): ?>
-              <tr>
-                <td style="text-align: center;"><strong><?= (int) $item['quantity'] ?>x</strong></td>
-                <td><?= htmlspecialchars($item['product_name']) ?></td>
-                <td><?= htmlspecialchars((string) $item['size_name']) ?></td>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+      <div class="label__section label__sender">
+        <span class="label__eyebrow" style="margin:0;">From</span>
+        <strong>PASTPRESENTFURTHER</strong>
       </div>
 
-      <div class="resi-footer">
-        Thank you for shopping at PASTPRESENTFURTHER!
+      <div class="label__section label__items">
+        <div class="label__items-head">
+          <p class="label__eyebrow">Package contents</p>
+          <p class="label__eyebrow"><?= $totalPieces ?> pcs</p>
+        </div>
+        <ul class="label__list">
+          <?php foreach ($orderItems as $item): ?>
+            <li class="label__item">
+              <span class="label__qty"><?= (int) $item['quantity'] ?>&times;</span>
+              <span class="label__name"><?= htmlspecialchars($item['product_name']) ?></span>
+              <span class="label__size">Size <?= htmlspecialchars(itemSizeLabel($item)) ?></span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
       </div>
+
+      <div class="label__section label__footer">Thank you for shopping at PASTPRESENTFURTHER</div>
 
     </div>
   </div>
-  
+
 </body>
 </html>

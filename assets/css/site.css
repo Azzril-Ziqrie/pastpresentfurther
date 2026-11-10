@@ -1,8 +1,13 @@
+@import url("theme.css");
+@import url("announcement.css");
 /* ── reset ───────────────────────────────────────────── */
-:root{--ink:#111;--tint:#f0f4fa;--chip:#d6d8d8;--bar-h:26px;--ease:cubic-bezier(.32,.72,0,1)}
+:root{--bar-h:26px;--ease:cubic-bezier(.32,.72,0,1)}
+/* tinggi chrome atas (navbar + bar pengumuman bila ada); dipakai menu, hero, dan elemen sticky */
+:root{--announce-h:22px;--top-h:var(--bar-h)}
+:root:has(.announce){--top-h:calc(var(--bar-h) + var(--announce-h))}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:#fff;color:var(--ink);font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.04em;animation:pageFadeIn .4s ease forwards;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.04em;animation:pageFadeIn .4s ease forwards;-webkit-font-smoothing:antialiased}
 body.lock-scroll{overflow:hidden}
 /* sticky footer: short pages push the footer to the bottom of the viewport */
 body{min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
@@ -13,12 +18,12 @@ button,input{font:inherit;letter-spacing:inherit}
 button{cursor:pointer}
 
 /* ── NAVBAR ──────────────────────────────────────────── */
-.navbar{width:100%;height:var(--bar-h);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 7px;position:sticky;top:0;z-index:60}
+.navbar{width:100%;height:var(--bar-h);background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 7px;position:sticky;top:0;z-index:60}
 .nav-left,.nav-right{display:flex;align-items:center;gap:32px}
 .nav-left{align-self:stretch}
 .nav-right{gap:38px}
 .nav-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center}
-.brand-mark img{height:26px;width:auto;border-radius:50%}
+.brand-mark img{height:26px;width:auto;border-radius:50%;filter:var(--logo-filter)}
 .nav-link{background:none;border:none;padding:0;color:var(--ink);font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap;transition:opacity .15s}
 .nav-link:hover{opacity:.45}
 .nav-link:active{opacity:.3;transition-duration:0s}
@@ -32,7 +37,7 @@ button{cursor:pointer}
 .nav-search{display:flex;align-items:center}
 .nav-search input{width:0;opacity:0;border:none;outline:none;background:transparent;color:var(--ink);font-size:10px;font-weight:700;text-transform:uppercase;border-bottom:1px solid transparent;transition:width .35s var(--ease),opacity .2s,margin .35s var(--ease)}
 .nav-search.open input{width:120px;opacity:1;margin-right:10px;border-bottom-color:var(--ink)}
-.nav-search input::placeholder{color:#999}
+.nav-search input::placeholder{color:var(--faint)}
 
 /* ── SHOP DROPDOWN ───────────────────────────────────── */
 .nav-dropdown{position:relative;height:var(--bar-h);display:flex;align-items:center}
@@ -42,23 +47,23 @@ button{cursor:pointer}
 .nav-dropdown__menu{position:absolute;top:100%;left:-7px;min-width:200px;background:var(--chip);opacity:0;visibility:hidden;transform:translateY(-6px);clip-path:inset(0 0 100% 0);transform-origin:top left;transition:opacity .2s,transform .4s var(--ease),clip-path .4s var(--ease),visibility 0s .4s}
 .nav-dropdown.open .nav-dropdown__menu{opacity:1;visibility:visible;transform:none;clip-path:inset(0);transition-delay:0s}
 @media(hover:hover){.nav-dropdown:hover .nav-dropdown__menu{opacity:1;visibility:visible;transform:none;clip-path:inset(0);transition-delay:0s}}
-.nav-dropdown__menu a{display:flex;align-items:center;min-height:30px;padding:0 8px;font-weight:700;border-bottom:2px solid #fff;transition:background .15s}
-.nav-dropdown__menu a:hover{background:rgba(255,255,255,.55)}
-.nav-dropdown__menu a:active{background:rgba(255,255,255,.85);transition-duration:0s}
+.nav-dropdown__menu a{display:flex;align-items:center;min-height:30px;padding:0 8px;font-weight:700;border-bottom:2px solid var(--rule);transition:background .15s}
+.nav-dropdown__menu a:hover{background:var(--hover)}
+.nav-dropdown__menu a:active{background:var(--hover-strong);transition-duration:0s}
 
 /* ── OVERLAY + MENU (mobile dropdown panel) ─────────── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.15);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:70}
 .overlay.active{opacity:1;visibility:visible}
-.menu-panel{position:fixed;top:var(--bar-h);left:0;right:0;height:calc(100vh - var(--bar-h));height:calc(100svh - var(--bar-h));background:var(--chip);z-index:65;overflow-y:auto;opacity:0;visibility:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .45s var(--ease),opacity .25s,visibility 0s .45s}
+.menu-panel{position:fixed;top:var(--top-h);left:0;right:0;height:calc(100vh - var(--top-h));height:calc(100svh - var(--top-h));background:var(--chip);z-index:65;overflow-y:auto;opacity:0;visibility:hidden;clip-path:inset(0 0 100% 0);transition:clip-path .45s var(--ease),opacity .25s,visibility 0s .45s}
 .menu-panel.active{opacity:1;visibility:visible;clip-path:inset(0);transition-delay:0s}
-.menu-body{display:flex;flex-direction:column}
-.menu-search-form{display:flex;align-items:center;min-height:34px;padding:0 8px;border-bottom:2px solid #fff}
+.menu-body{display:flex;flex-direction:column;min-height:100%}
+.menu-search-form{display:flex;align-items:center;min-height:34px;padding:0 8px;border-bottom:2px solid var(--rule)}
 .menu-search-form input{width:100%;border:none;outline:none;background:transparent;color:var(--ink);font-weight:700;text-transform:uppercase}
-.menu-search-form input::placeholder{color:#999}
+.menu-search-form input::placeholder{color:var(--faint)}
 .menu-search-form button{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0;border:0}
 .menu-nav-primary{display:flex;flex-direction:column}
-.menu-nav-primary a,.menu-nav-primary button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:34px;padding:0 8px;border:none;border-bottom:2px solid #fff;background:none;color:var(--ink);font-weight:700;text-align:left;text-transform:uppercase;transition:background .15s}
-.menu-nav-primary a:active,.menu-nav-primary button:active{background:rgba(255,255,255,.6);transition-duration:0s}
+.menu-nav-primary a,.menu-nav-primary button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:34px;padding:0 8px;border:none;border-bottom:2px solid var(--rule);background:none;color:var(--ink);font-weight:700;text-align:left;text-transform:uppercase;transition:background .15s}
+.menu-nav-primary a:active,.menu-nav-primary button:active{background:var(--hover-strong);transition-duration:0s}
 .menu-dropdown__toggle::after{content:'';width:6px;height:6px;border:solid var(--ink);border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg);transition:transform .3s var(--ease)}
 .menu-dropdown.open .menu-dropdown__toggle::after{transform:translateY(2px) rotate(225deg)}
 .menu-dropdown__list{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
@@ -83,14 +88,14 @@ button{cursor:pointer}
 .cart-item-price{color:rgba(255,255,255,.7);font-weight:500}
 .cart-item-qty{display:flex;align-items:center;gap:10px;margin-top:8px}
 .cart-item-qty button{width:22px;height:22px;border:1px solid #fff;background:transparent;color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
-.cart-item-qty button:hover{background:#fff;color:var(--ink)}
+.cart-item-qty button:hover{background:#fff;color:var(--on-light)}
 .cart-item-qty span{min-width:16px;text-align:center;font-weight:700}
 .cart-item-remove{align-self:flex-start;background:transparent;border:none;color:rgba(255,255,255,.6);font-size:16px;line-height:1;padding:2px;transition:color .15s}
 .cart-item-remove:hover{color:#fff}
 .cart-foot{padding:16px 18px calc(18px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.2);flex-shrink:0}
 .cart-total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;font-weight:500}
 .cart-total strong{font-size:13px;font-weight:700}
-.cart-checkout-btn{display:block;width:100%;min-height:48px;touch-action:manipulation;background:#fff;color:var(--ink);border:none;font-weight:700;text-transform:uppercase;transition:background .15s,transform .1s}
+.cart-checkout-btn{display:block;width:100%;min-height:48px;touch-action:manipulation;background:#fff;color:var(--on-light);border:none;font-weight:700;text-transform:uppercase;transition:background .15s,transform .1s}
 .cart-checkout-btn:hover{background:rgba(255,255,255,.85)}
 .cart-checkout-btn:active{transform:scale(.99);transition-duration:0s}
 .cart-checkout-btn:disabled{background:rgba(255,255,255,.35);color:rgba(17,17,17,.6);cursor:not-allowed}
@@ -110,13 +115,13 @@ button{cursor:pointer}
 .account-tabs{display:flex;border:1px solid #fff;margin-bottom:8px}
 .account-tab{flex:1;height:24px;background:transparent;border:none;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;transition:background .15s,color .15s}
 .account-tab+.account-tab{border-left:1px solid #fff}
-.account-tab.active{background:#fff;color:var(--ink)}
+.account-tab.active{background:#fff;color:var(--on-light)}
 .account-form{display:flex;flex-direction:column;gap:8px}
 .account-form input{width:100%;height:24px;padding:0 8px;border:1px solid #fff;background:transparent;color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;outline:none;text-transform:none;transition:background .15s}
 .account-form input:focus{background:rgba(255,255,255,.12)}
 .account-form input::placeholder{color:rgba(255,255,255,.6);text-transform:uppercase}
 .account-form input:-webkit-autofill{-webkit-text-fill-color:#fff;transition:background-color 99999s}
-.account-submit{height:24px;background:#fff;color:var(--ink);border:none;font-size:10px;font-weight:700;text-transform:uppercase;transition:background .15s,opacity .15s}
+.account-submit{height:24px;background:#fff;color:var(--on-light);border:none;font-size:10px;font-weight:700;text-transform:uppercase;transition:background .15s,opacity .15s}
 .account-submit:hover{background:rgba(255,255,255,.85)}
 .account-submit:disabled{opacity:.6;cursor:default}
 .account-msg{font-size:10px;font-weight:600;text-align:center;padding:6px 8px;margin-bottom:8px;text-transform:none;border:1px solid #fff}
@@ -147,14 +152,14 @@ button{cursor:pointer}
 .currency-select.open .currency-select__list{max-height:120px;border-top:1px solid #fff}
 .currency-select__list a{display:flex;justify-content:space-between;align-items:center;height:24px;padding:0 8px;transition:background .15s,color .15s}
 .currency-select__list a span{font-weight:600}
-.currency-select__list a:hover,.currency-select__list a[aria-selected="true"]{background:#fff;color:var(--ink)}
+.currency-select__list a:hover,.currency-select__list a[aria-selected="true"]{background:#fff;color:var(--on-light)}
 @media(prefers-reduced-transparency:reduce){
   .currency-popup.active .currency-popup__backdrop{background:rgba(30,30,30,.95);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 
 /* ── TOAST ───────────────────────────────────────────── */
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:6px;pointer-events:none}
-.toast{background:var(--ink);color:#fff;padding:10px 16px;font-size:10px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:260px}
+.toast{background:var(--ink);color:var(--bg);padding:10px 16px;font-size:10px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:260px}
 .toast.show{opacity:1;transform:translateY(0)}
 
 /* ── SECTION HEAD ────────────────────────────────────── */
@@ -168,11 +173,11 @@ button{cursor:pointer}
 .legal-wrapper{max-width:820px;margin:0 auto;padding:28px 7px 60px}
 .legal-section{margin-bottom:36px}
 .legal-section h2{font-size:10px;font-weight:700;margin-bottom:14px}
-.legal-section p,.legal-section li{font-size:11px;font-weight:400;line-height:1.8;letter-spacing:.02em;color:#555;text-transform:none;margin-bottom:12px}
+.legal-section p,.legal-section li{font-size:11px;font-weight:400;line-height:1.8;letter-spacing:.02em;color:var(--text-2);text-transform:none;margin-bottom:12px}
 .legal-section ul{padding-left:20px;margin-bottom:12px}
 .legal-section a{text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
 .legal-section a:hover{opacity:.6}
-.legal-version{font-size:8px;font-weight:400;color:#888;margin-top:48px;text-transform:none;font-style:normal}
+.legal-version{font-size:8px;font-weight:400;color:var(--muted);margin-top:48px;text-transform:none;font-style:normal}
 @media(max-width:760px){.legal-wrapper{padding:20px 8px 48px}}
 
 /* ── FOOTER ──────────────────────────────────────────── */
@@ -185,7 +190,7 @@ button{cursor:pointer}
 
 /* ── RESPONSIVE (shared chrome) ──────────────────────── */
 @media(max-width:760px){
-  :root{--bar-h:36px}
+  :root{--bar-h:36px;--announce-h:28px}
   body{font-size:10px}
   .navbar{padding:0 8px 0 0}
   .nav-link{font-size:10px}
@@ -202,11 +207,31 @@ button{cursor:pointer}
   .footer-links{display:grid;grid-template-columns:1fr 1fr;align-items:start;height:auto;margin-top:40px;border-top:0;padding:14px 8px 10px;background:var(--chip);font-size:10px}
   .footer-links .group{flex-direction:column;align-items:flex-start;gap:22px}
   .footer-links .group:last-child{align-items:flex-end}
-  .footer-copy{background:#fff;padding:12px 12px 16px;font-size:7px;line-height:1.5;color:var(--ink)}
-  .toast-container{top:calc(var(--bar-h) + 8px);bottom:auto;right:12px;left:12px}
+  .footer-copy{background:var(--bg);padding:12px 12px 16px;font-size:7px;line-height:1.5;color:var(--ink)}
+  .footer-theme{display:none}
+  .toast-container{top:calc(var(--top-h) + 8px);bottom:auto;right:12px;left:12px}
   .toast{max-width:100%}
 }
 @media(min-width:761px){#openAccountBtnMobile,#openCurrencyBtnMobile{display:none}}
+/* ── ANNOUNCEMENT BAR: pembungkus sticky; tampilan & animasi ada di announcement.css ── */
+.site-top{position:sticky;top:0;z-index:60}
+
+/* ── THEME TOGGLE (satu ikon: matahari <-> bulan) ─────── */
+.theme-toggle{position:relative;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:none;color:var(--ink);transition:opacity .15s,transform .12s}
+.theme-toggle:hover{opacity:.45}
+.theme-toggle:active{opacity:.3;transform:scale(.92);transition-duration:0s}
+.theme-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.theme-toggle__icon{grid-area:1/1;width:18px;height:18px;transition:transform .5s var(--ease),opacity .3s}
+.theme-toggle__moon{opacity:0;transform:rotate(-60deg) scale(.5)}
+.theme-toggle[data-active="dark"] .theme-toggle__sun{opacity:0;transform:rotate(60deg) scale(.5)}
+.theme-toggle[data-active="dark"] .theme-toggle__moon{opacity:1;transform:none}
+/* satu baris di dasar menu, polos tanpa garis; ikon sejajar dengan teks di atasnya */
+.menu-theme{display:flex;align-items:center;min-height:44px;margin-top:auto;padding:0 8px env(safe-area-inset-bottom);box-sizing:content-box}
+.menu-theme .theme-toggle{margin-left:-5px}
+.footer-theme{margin-right:-5px}
+/* transisi halus saat tema berganti (hanya sebentar, dipasang oleh JS) */
+html.theme-anim,html.theme-anim *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease!important}
+
 @media(max-width:560px){
   .cart-body,.cart-foot,.cart-head{padding-left:18px;padding-right:18px}
 }

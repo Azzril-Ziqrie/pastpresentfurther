@@ -185,6 +185,34 @@ function getFinalPriceProd(array $product, string $currency = 'IDR'): float
     return max($base - ($base * ((float)($product['discount_percent'] ?? 0) / 100)), 0);
 }
 
+/* ── related products ────────────────────────────────── */
+const RELATED_PRODUCTS_LIMIT = 4;
+
+/**
+ * Produk rekomendasi: kategori yang sama dulu, yang stoknya ada dulu,
+ * lalu diisi produk kategori lain sampai $limit.
+ *
+ * @param string $extraColumns kolom opsional (harga USD, diskon) yang sudah diseleksi aman
+ */
+function fetchRelatedProducts(PDO $pdo, array $product, string $extraColumns, int $limit = RELATED_PRODUCTS_LIMIT): array
+{
+    $stmt = $pdo->prepare(
+        "SELECT p.id, p.name, p.slug, p.thumbnail, p.price_idr, {$extraColumns}
+                EXISTS(SELECT 1 FROM product_sizes ps
+                       WHERE ps.product_id = p.id AND ps.is_active = 1 AND ps.stock > 0) AS is_in_stock
+         FROM products p
+         WHERE p.is_active = 1 AND p.id <> :id AND p.thumbnail <> ''
+         ORDER BY (p.category_id <=> :category_id) DESC, is_in_stock DESC, p.id DESC
+         LIMIT :limit"
+    );
+    $stmt->bindValue('id', (int) $product['id'], PDO::PARAM_INT);
+    $stmt->bindValue('category_id', $product['category_id'], $product['category_id'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+    $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 $originalPrice = getBasePriceProd($product, $currentCurrency);
 $basePrice     = getFinalPriceProd($product, $currentCurrency);
 $comparePrice  = getComparePriceProd($product, $currentCurrency);
@@ -195,6 +223,12 @@ $comparePriceToShow = $isFlashSaleActive ? $originalPrice : $comparePrice;
 
 $displayPrice        = formatCurrency($basePrice, $currentCurrency);
 $displayComparePrice = $hasDiscount ? formatCurrency($comparePriceToShow, $currentCurrency) : null;
+
+$relatedProducts = fetchRelatedProducts(
+    $pdo,
+    $product,
+    $priceUsdSelect . $discountPercentSelect . $discountStartSelect . $discountEndSelect . $discountActiveSelect
+);
 
 $hasColor = $hasColorColumn && trim((string)($product['color'] ?? '')) !== '';
 
@@ -215,42 +249,58 @@ $currencyExtra = '&slug=' . urlencode($slug);
   <style>
 /* ── PRODUCT GALLERY ─────────────────────────────────── */
 .pd-gallery-wrap{position:relative}
-.pd-gallery{display:flex;gap:2px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:#fff}
+.pd-gallery{display:flex;gap:2px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--media)}
 .pd-gallery::-webkit-scrollbar{display:none}
-.pd-slide{flex:0 0 calc((100% - 4px) / 3);scroll-snap-align:start;display:block;aspect-ratio:3/4;background:#fff;overflow:hidden}
+.pd-slide{flex:0 0 calc((100% - 4px) / 3);scroll-snap-align:start;display:block;aspect-ratio:3/4;background:var(--media);overflow:hidden}
 .pd-slide img{width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;transition:transform .6s var(--ease)}
 .pd-slide:hover img{transform:scale(1.02)}
-.pd-count{display:none;position:absolute;right:8px;bottom:8px;padding:2px 6px;background:#fff;font-weight:700}
+.pd-count{display:none;position:absolute;right:8px;bottom:8px;padding:2px 6px;background:var(--bg);font-weight:700}
 
 /* ── PRODUCT BAR ─────────────────────────────────────── */
 .pd-bar{display:flex;justify-content:space-between;align-items:flex-start;gap:20px 40px;flex-wrap:wrap;padding:16px 7px 20px}
 .pd-title{font-size:10px;font-weight:700}
 .pd-price{display:flex;gap:10px;margin-top:6px;font-weight:500}
-.pd-price .was{text-decoration:line-through;color:#aaa}
+.pd-price .was{text-decoration:line-through;color:var(--faint)}
 .pd-buy{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
-.pd-label{color:#777;font-weight:500}
+.pd-label{color:var(--muted);font-weight:500}
 .pd-color{display:flex;align-items:center;gap:8px}
 .pd-color i{width:22px;height:10px;background:var(--ink);display:inline-block}
 .pd-sizes{display:flex;align-items:center;gap:12px}
 .pd-size-group{display:flex;gap:6px}
-.size-btn{min-width:32px;height:26px;padding:0 8px;background:#fff;color:var(--ink);border:1px solid var(--ink);font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s,color .15s}
-.size-btn:hover{background:rgba(17,17,17,.08)}
-.size-btn.active{background:var(--ink);color:#fff}
+.size-btn{min-width:32px;height:26px;padding:0 8px;background:var(--bg);color:var(--ink);border:1px solid var(--ink);font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s,color .15s}
+.size-btn:hover{background:var(--ink-hover)}
+.size-btn.active{background:var(--ink);color:var(--bg)}
 .pd-sold{font-weight:700}
-.pd-add{height:34px;padding:0 32px;background:var(--ink);color:#fff;border:none;font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s,opacity .15s,transform .1s}
-.pd-add:hover:not(:disabled){background:#000}
+.pd-add{height:34px;padding:0 32px;background:var(--ink);color:var(--bg);border:none;font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s,opacity .15s,transform .1s}
+.pd-add:hover:not(:disabled){background:var(--ink-strong)}
 .pd-add:active:not(:disabled){transform:scale(.98);transition-duration:0s}
-.pd-add:disabled{background:#999;cursor:default}
+.pd-add:disabled{background:var(--faint);cursor:default}
 
 /* ── PRODUCT DETAILS ─────────────────────────────────── */
-.pd-details{max-width:560px;padding:0 7px 56px;font-weight:400;line-height:1.7;text-transform:none;letter-spacing:.02em;color:#333}
+.pd-details{max-width:560px;padding:0 7px 56px;font-weight:400;line-height:1.7;text-transform:none;letter-spacing:.02em;color:var(--text-2)}
 .pd-desc{margin-bottom:22px}
 .pd-rows{display:flex;flex-direction:column;gap:8px}
 .pd-row{display:flex;gap:16px;align-items:baseline}
 .pd-row dt{flex:0 0 150px;color:var(--ink);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.pd-row dd{color:#777;margin:0}
-.pd-row a,.pd-row button{color:#777;background:none;border:none;padding:0;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.pd-row dd{color:var(--muted);margin:0}
+.pd-row a,.pd-row button{color:var(--muted);background:none;border:none;padding:0;font:inherit;text-align:left;text-decoration:underline;text-underline-offset:3px}
 .pd-row a:hover,.pd-row button:hover{color:var(--ink)}
+
+/* ── RELATED PRODUCTS ────────────────────────────────── */
+.pd-related{padding:0 0 56px}
+.pd-related__head{display:flex;justify-content:space-between;align-items:center;padding:8px 7px 12px}
+.pd-related__head h2{font-size:10px;font-weight:700;text-transform:uppercase;margin:0}
+.pd-related__track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
+.rel-card{display:block;background:var(--bg);color:inherit}
+.rel-card__img{position:relative;aspect-ratio:2/3;background:var(--media);overflow:hidden}
+.rel-card__img img{width:100%;height:100%;object-fit:contain;transition:transform .6s var(--ease)}
+.rel-card:hover .rel-card__img img{transform:scale(1.02)}
+.rel-card__sale{position:absolute;top:8px;left:8px;z-index:2;font-size:8px;font-weight:700;background:var(--bg);padding:2px 6px}
+.rel-card__info{padding:8px 7px 12px}
+.rel-card h3{margin:0 0 6px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-card__price{margin:0;font-weight:500}
+.rel-card__price .was{margin-right:8px;text-decoration:line-through;color:var(--faint)}
+.rel-card__sold{font-weight:700}
 
 /* ── SIZE CHART (same glass popup as account/currency) ── */
 #modal-size-chart .account-popup__dialog{max-width:min(560px,92vw)}
@@ -267,8 +317,12 @@ $currencyExtra = '&slug=' . urlencode($slug);
   .pd-details{padding:0 8px 44px}
   .pd-row{flex-direction:column;gap:2px}
   .pd-row dt{flex:none}
+  .pd-related__head{padding:8px 8px 12px}
+  .pd-related__track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .pd-related__track::-webkit-scrollbar{display:none}
+  .rel-card{flex:0 0 62%;scroll-snap-align:start}
 }
-@media(prefers-reduced-motion:reduce){.pd-slide:hover img{transform:none}}
+@media(prefers-reduced-motion:reduce){.pd-slide:hover img,.rel-card:hover .rel-card__img img{transform:none}}
   </style>
 </head>
 <body>
@@ -359,6 +413,8 @@ $currencyExtra = '&slug=' . urlencode($slug);
         </div>
       </dl>
     </div>
+
+    <?php include __DIR__ . '/includes/related-products.php'; ?>
   </main>
 
   <?php if (!empty($product['size_chart_image'])): ?>

@@ -19,6 +19,7 @@ $adminIcons = [
   'book'    => '<path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6v14h6z"/>',
   'file'    => '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
   'lock'    => '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  'megaphone'=> '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   'external'=> '<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>',
 ];
 $adminMenu = [
@@ -38,9 +39,11 @@ $adminMenu = [
     ['send-resi.php',            'Send resi',          'truck'],
   ],
   'Storefront content' => [
+    ['dashboard-announcement.php','Announcement',      'megaphone'],
     ['dashboard-hero.php',       'Hero slides',        'image'],
     ['lookbook.php',             'Lookbook',           'book'],
     ['dashboard-blogs.php',      'Research / blog',    'file'],
+    ['dashboard-page-text.php',  'Page text',          'file'],
     ['dashboard-pages.php',      'Page photos',        'image'],
   ],
 ];
@@ -55,10 +58,10 @@ $svg = static fn(string $k) => '<svg viewBox="0 0 24 24" width="18" height="18" 
     <span>pastpresentfurther<small>Admin</small></span>
   </a>
   <nav class="adm-nav">
-    <?php foreach ($adminMenu as $group => $items): ?>
+    <?php foreach ($adminMenu as $group => $menuLinks): ?>
       <div class="adm-group">
         <div class="adm-group__title"><?= htmlspecialchars($group) ?></div>
-        <?php foreach ($items as [$href, $label, $icon]): ?>
+        <?php foreach ($menuLinks as [$href, $label, $icon]): ?>
           <a href="<?= $href ?>" class="adm-link<?= $adminActive === $href ? ' is-active' : '' ?>"<?= $adminActive === $href ? ' aria-current="page"' : '' ?>>
             <?= $svg($icon) ?><span><?= htmlspecialchars($label) ?></span>
           </a>

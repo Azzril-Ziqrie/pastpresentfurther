@@ -330,3 +330,59 @@
     };
 
 })();
+
+/* ── Theme: light / dark ─────────────────────────────────────
+   Pilihan disimpan di localStorage ('ppf_theme'). Selama pengguna belum memilih,
+   tampilan mengikuti pengaturan sistem (prefers-color-scheme).
+   Atribut data-theme dipasang lebih awal oleh includes/theme-boot.php. */
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'ppf_theme';
+  const ANIMATION_MS = 400;
+  const root  = document.documentElement;
+  const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function systemTheme()  { return media && media.matches ? 'dark' : 'light'; }
+  function currentTheme() { return root.getAttribute('data-theme') || systemTheme(); }
+
+  function reflectTheme(theme) {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+      btn.dataset.active = theme;
+      btn.setAttribute('aria-label', 'Switch to ' + next + ' mode');
+    });
+  }
+
+  function animateThemeChange() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.classList.add('theme-anim');
+    setTimeout(() => root.classList.remove('theme-anim'), ANIMATION_MS);
+  }
+
+  function saveTheme(theme) {
+    try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) { /* mode privat: tetap jalan tanpa simpan */ }
+  }
+
+  function setTheme(theme) {
+    if (theme === currentTheme()) return;
+    animateThemeChange();
+    root.setAttribute('data-theme', theme);
+    saveTheme(theme);
+    reflectTheme(theme);
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-theme-toggle]')) {
+      setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    }
+  });
+
+  if (media && media.addEventListener) {
+    media.addEventListener('change', () => {
+      if (!root.hasAttribute('data-theme')) reflectTheme(systemTheme());
+    });
+  }
+
+  reflectTheme(currentTheme());
+})();

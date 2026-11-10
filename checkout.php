@@ -926,7 +926,7 @@ if (!empty($cartItems)) {
         return;
       }
 
-      shippingOptionsEl.innerHTML = '<span style="color:#bbb;font-size:9px;text-transform:none;letter-spacing:.04em">Loading shipping options...</span>';
+      shippingOptionsEl.innerHTML = '<span style="color:var(--faint);font-size:9px;text-transform:none;letter-spacing:.04em">Loading shipping options...</span>';
 
       const endpoint = shippingModeEl.value === 'domestic'
         ? 'config/calculate-domestic-shipping.php'

@@ -1,0 +1,56 @@
+/* Bar pengumuman: tampilan + animasi.
+   Dipakai storefront (di-import dari site.css) dan preview di dashboard admin.
+   Variabel (--announce-h, --announce-bg, --ink, --ease) punya nilai cadangan agar berdiri sendiri. */
+
+.announce{
+  --ann-ease:var(--ease,cubic-bezier(.32,.72,0,1));
+  position:relative;display:flex;align-items:center;justify-content:center;
+  height:var(--announce-h,22px);padding:0 var(--announce-h,22px);
+  background:var(--announce-bg,#efefef);color:var(--ink,#111);
+  font:700 9px/1 'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  text-transform:uppercase;letter-spacing:.04em;overflow:hidden;
+  transition:height .3s var(--ann-ease),opacity .25s;
+}
+.announce.is-closing{height:0;opacity:0}
+
+/* Semua pengumuman ditumpuk di satu sel grid; yang aktif saja yang terlihat. */
+.announce__stage{display:grid;place-items:center;min-width:0;width:100%}
+.announce__item{grid-area:1/1;display:flex;align-items:center;gap:12px;min-width:0;max-width:100%;margin:0;opacity:0;visibility:hidden;pointer-events:none}
+.announce__item.is-active{opacity:1;visibility:visible;pointer-events:auto}
+.announce__item.is-leaving{visibility:visible;pointer-events:none}
+.announce__msg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.announce__link{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:inherit;text-decoration:none;transition:opacity .15s}
+.announce__link svg{width:10px;height:10px}
+.announce__link:hover,.announce__close:hover{opacity:.45}
+.announce__link:active,.announce__close:active{opacity:.3;transition-duration:0s}
+
+.announce__close{position:absolute;top:0;right:0;display:grid;place-items:center;width:var(--announce-h,22px);height:var(--announce-h,22px);padding:0;border:0;background:none;color:inherit;cursor:pointer;transition:opacity .15s}
+.announce__close svg{width:10px;height:10px}
+
+/* ── Animasi bergantian (mode dipilih lewat data-mode di .announce) ── */
+.announce[data-mode="slide"] .is-entering{animation:annSlideIn .55s var(--ann-ease) both}
+.announce[data-mode="slide"] .is-leaving{animation:annSlideOut .45s var(--ann-ease) both}
+.announce[data-mode="fade"] .is-entering{animation:annFadeIn .5s ease both}
+.announce[data-mode="fade"] .is-leaving{animation:annFadeOut .4s ease both}
+.announce[data-mode="blink"] .is-entering{animation:annBlink .9s linear both}
+.announce[data-mode="blink"] .is-leaving{animation:annFadeOut .15s linear both}
+
+@keyframes annSlideIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@keyframes annSlideOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(24px)}}
+@keyframes annFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes annFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes annBlink{0%{opacity:0}16%{opacity:1}30%{opacity:.15}46%{opacity:1}60%{opacity:.35}76%,100%{opacity:1}}
+
+/* ── Marquee: berjalan terus ke kanan, seamless (isi diulang 2 paruh yang sama) ── */
+.announce.is-marquee .announce__stage{display:block;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.announce.is-marquee .announce__stage>.announce__item{display:none}
+.announce__track{display:flex;width:max-content;animation:annMarquee var(--ann-dur,30s) linear infinite}
+.announce.is-marquee:hover .announce__track{animation-play-state:paused}
+.announce__half{display:flex;flex-shrink:0}
+.announce__half .announce__item{grid-area:auto;flex-shrink:0;margin-right:48px;opacity:1;visibility:visible;pointer-events:auto}
+@keyframes annMarquee{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+
+/* Hormati pengaturan "kurangi gerakan": perpindahan jadi instan, tidak ada gerak. */
+@media(prefers-reduced-motion:reduce){
+  .announce .is-entering,.announce .is-leaving,.announce__track{animation-duration:.01ms!important}
+}

@@ -168,26 +168,26 @@ function formatCurrency(float $amount, string $currency = 'IDR'): string {
   <link rel="stylesheet" href="assets/css/site.css?v=<?= filemtime(__DIR__ . '/assets/css/site.css') ?>">
   <style>
 /* ── PRODUCTS ────────────────────────────────────────── */
-.product-section{width:100%;background:#fff}
+.product-section{width:100%;background:var(--bg)}
 .product-grid{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-.product-card{position:relative;display:block;background:#fff;opacity:0;animation:productFadeIn .4s ease forwards}
+.product-card{position:relative;display:block;background:var(--bg);opacity:0;animation:productFadeIn .4s ease forwards}
 .product-card:nth-child(1){animation-delay:.03s}
 .product-card:nth-child(2){animation-delay:.06s}
 .product-card:nth-child(3){animation-delay:.09s}
 .product-card:nth-child(4){animation-delay:.12s}
 .product-card:nth-child(n+5){animation-delay:.15s}
-.product-image-link{position:relative;display:block;border-right:1px solid rgba(255,255,255,.75)}
-.discount-label{position:absolute;top:8px;left:8px;z-index:3;font-size:8px;font-weight:700;color:var(--ink);background:#fff;padding:2px 6px}
-.product-image{position:relative;background:#fff;aspect-ratio:2/3;overflow:hidden}
+.product-image-link{position:relative;display:block;border-right:1px solid var(--rule)}
+.discount-label{position:absolute;top:8px;left:8px;z-index:3;font-size:8px;font-weight:700;color:var(--ink);background:var(--bg);padding:2px 6px}
+.product-image{position:relative;background:var(--media);aspect-ratio:2/3;overflow:hidden}
 .product-image img{width:100%;height:100%;object-fit:contain;object-position:center;transition:transform .6s var(--ease)}
 .product-card:hover .product-image img{transform:scale(1.02)}
 .product-info-link{display:block}
-.product-info{padding:8px 7px 12px;background:#fff}
+.product-info{padding:8px 7px 12px;background:var(--bg)}
 .product-card h3{font-size:10px;font-weight:700;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .product-price{font-weight:500}
-.price-original{margin-right:8px;text-decoration:line-through;color:#aaa}
+.price-original{margin-right:8px;text-decoration:line-through;color:var(--faint)}
 .sold-out-text{font-weight:700}
-.empty-text{padding:80px 14px;text-align:center;color:#999}
+.empty-text{padding:80px 14px;text-align:center;color:var(--faint)}
 
 /* ── PAYMENT POPUP (same material as currency) ───────── */
 .payment-popup{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -202,7 +202,7 @@ function formatCurrency(float $amount, string $currency = 'IDR'): string {
 .payment-popup__text{margin:0 auto 16px;font-weight:500;line-height:1.7;text-transform:none;opacity:.9}
 .payment-popup__meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px;padding:0 8px;min-height:24px;border:1px solid #fff;font-weight:700}
 .payment-popup__meta span{font-weight:500;opacity:.8}
-.payment-popup__btn{width:100%;height:30px;border:none;background:#fff;color:var(--ink);font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s}
+.payment-popup__btn{width:100%;height:30px;border:none;background:#fff;color:var(--on-light);font:inherit;font-weight:700;text-transform:uppercase;transition:background .15s}
 .payment-popup__btn:hover{background:rgba(255,255,255,.85)}
 .payment-popup .popup-close{position:fixed;top:calc(var(--bar-h) + 6px);right:10px;color:#fff}
 @media(prefers-reduced-transparency:reduce){

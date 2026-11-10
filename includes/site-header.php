@@ -6,6 +6,9 @@ $category = $category ?? '';
 $currencyQs = ($search !== '' ? '&search=' . urlencode($search) : '') . ($category !== '' ? '&category=' . urlencode($category) : '') . ($currencyExtra ?? '');
 $isLoggedIn = isset($_SESSION['user']['id']);
 $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
+include __DIR__ . '/theme-boot.php';
+require_once __DIR__ . '/announcement.php';
+$announcement = isset($pdo) && $pdo instanceof PDO ? ppf_announcement_active($pdo) : null;
 ?>
 <div class="overlay" id="overlay"></div>
 
@@ -33,7 +36,7 @@ $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
         </div>
       </div>
       <a href="lookbook.php">Lookbook</a>
-      <a href="research.php">Further Research</a>
+      <a href="further-research.php">Further Research</a>
       <button type="button" id="openCurrencyBtnMobile" aria-haspopup="dialog">Currency</button>
       <a href="about.php">About</a>
       <?php if (!$isLoggedIn): ?>
@@ -42,6 +45,10 @@ $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
       <a href="logout.php">Logout</a>
       <?php endif; ?>
     </nav>
+
+    <div class="menu-theme">
+      <?php include __DIR__ . '/theme-switch.php'; ?>
+    </div>
   </div>
 </aside>
 
@@ -115,6 +122,8 @@ $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
   </div>
 </div>
 
+<div class="site-top">
+<?php include __DIR__ . '/announcement-bar.php'; ?>
 <header class="navbar">
   <div class="nav-left">
     <button class="menu-icon-wrap" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
@@ -131,7 +140,7 @@ $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
       </div>
     </div>
     <a class="nav-link" href="lookbook.php">Lookbook</a>
-    <a class="nav-link" href="research.php">Further Research</a>
+    <a class="nav-link" href="further-research.php">Further Research</a>
     <a class="nav-link" href="about.php">About</a>
   </div>
 
@@ -158,6 +167,7 @@ $currencyLabel = $currentCurrency === 'USD' ? '$ USD' : 'RP IDR';
     <button class="nav-link" id="openCartBtn" aria-label="Cart">Cart <span class="nav-count" id="navCartCount">0</span></button>
   </div>
 </header>
+</div>
 
 
 <script>window.PPF_CURRENCY = <?= json_encode($currentCurrency) ?>;</script>

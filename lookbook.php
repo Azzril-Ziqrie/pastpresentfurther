@@ -118,23 +118,23 @@ function lookbookDims(string $path): string
   <link rel="stylesheet" href="assets/css/site.css?v=<?= filemtime(__DIR__ . '/assets/css/site.css') ?>">
   <style>
 /* ── LOOKBOOK ────────────────────────────────────────── */
-.lb-tabs{position:sticky;top:var(--bar-h);z-index:40;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;background:#fff}
+.lb-tabs{position:sticky;top:var(--top-h);z-index:40;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;background:var(--bg)}
 .lb-tabs::-webkit-scrollbar{display:none}
 .lb-tab{flex:0 0 auto;min-width:112px;height:30px;padding:0 14px;border:0;background:var(--chip);color:var(--ink);font:inherit;font-weight:700;text-align:left;transition:background .2s,color .2s}
 .lb-tab:hover{background:#c6c8c8}
-.lb-tab[aria-selected="true"]{background:var(--ink);color:#fff}
-.lb-title{padding:8px 7px 0;font-weight:500;color:#777}
-.lb-panel{position:relative;--lb-h:calc(100vh - var(--bar-h) - 30px);--lb-h:calc(100svh - var(--bar-h) - 30px);animation:pageFadeIn .4s ease both}
+.lb-tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.lb-title{padding:8px 7px 0;font-weight:500;color:var(--muted)}
+.lb-panel{position:relative;--lb-h:calc(100vh - var(--top-h) - 30px);--lb-h:calc(100svh - var(--top-h) - 30px);animation:pageFadeIn .4s ease both}
 .lb-panel[hidden]{display:none}
 .lb-strip{display:flex;gap:2px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:2px}
 .lb-strip::-webkit-scrollbar{display:none}
-.lb-photo{flex:0 0 auto;scroll-snap-align:start;background:#fff}
+.lb-photo{flex:0 0 auto;scroll-snap-align:start;background:var(--media)}
 .lb-photo img{display:block;height:var(--lb-h);width:auto;max-width:100vw;object-fit:contain}
 .lb-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:44px;height:64px;border:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:opacity .2s}
 .lb-arrow svg{width:12px;height:12px;filter:drop-shadow(0 0 3px rgba(255,255,255,.7))}
 .lb-arrow--prev{left:0}.lb-arrow--next{right:0}
 .lb-arrow[disabled]{opacity:0;pointer-events:none}
-.empty-state{padding:120px 14px;text-align:center;color:#999}
+.empty-state{padding:120px 14px;text-align:center;color:var(--faint)}
 .empty-state .icon{display:block;font-size:30px;margin-bottom:12px;opacity:.5}
 @media(max-width:760px){
   .lb-tab{min-width:30vw}

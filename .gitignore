@@ -16,3 +16,13 @@ invoices/
 *.sql
 alter-that.com/
 node_modules/
+
+# Migrasi database yang perlu ikut repo
+!database/*.sql
+
+# Cache font yang dibuat Dompdf otomatis
+vendor/dompdf/dompdf/lib/fonts/*.afm.json
+
+# Salinan config & gambar referensi (tidak ikut repo)
+config/* copy.php
+Border Jlal.png

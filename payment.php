@@ -425,7 +425,7 @@ $orderNum        = htmlspecialchars($order['order_number']);
         if (this.files && this.files.length > 0) {
           const f = this.files[0];
           filePreview.textContent = f.name + ' (' + (f.size / 1024 / 1024).toFixed(2) + ' MB)';
-          filePreview.style.color = '#111';
+          filePreview.style.color = 'var(--ink)';
         } else {
           filePreview.textContent = 'No file selected — JPG, PNG or PDF, max 10MB';
           filePreview.style.color = '';

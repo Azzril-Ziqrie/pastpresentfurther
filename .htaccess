@@ -17,6 +17,10 @@
     RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|error_log)$ - [F,L,NC]
 
     # ── Clean URLs: hide the .php extension ──────────────────
+    # 0) Halaman lama /research (dan /research.php) dipindah ke /further-research (301, query dipertahankan)
+    RewriteCond %{REQUEST_URI} ^(.*/)research(?:\.php)?/?$ [NC]
+    RewriteRule ^ %1further-research [R=301,L]
+
     # 1) GET/HEAD requests for /something.php are redirected to /something
     #    (query string is kept). THE_REQUEST holds the ORIGINAL request line,
     #    so the internal rewrite in step 3 can never loop back into this rule.
