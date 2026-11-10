@@ -332,19 +332,18 @@
 })();
 
 /* ── Theme: light / dark ─────────────────────────────────────
-   Pilihan disimpan di localStorage ('ppf_theme'). Selama pengguna belum memilih,
-   tampilan mengikuti pengaturan sistem (prefers-color-scheme).
+   Tema bawaan selalu terang (tidak mengikuti pengaturan HP / sistem). Gelap hanya aktif bila
+   pengunjung memilihnya; pilihan disimpan di localStorage ('ppf_theme').
    Atribut data-theme dipasang lebih awal oleh includes/theme-boot.php. */
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'ppf_theme';
   const ANIMATION_MS = 400;
-  const root  = document.documentElement;
-  const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  const DEFAULT_THEME = 'light';
+  const root = document.documentElement;
 
-  function systemTheme()  { return media && media.matches ? 'dark' : 'light'; }
-  function currentTheme() { return root.getAttribute('data-theme') || systemTheme(); }
+  function currentTheme() { return root.getAttribute('data-theme') || DEFAULT_THEME; }
 
   function reflectTheme(theme) {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -377,12 +376,6 @@
       setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
     }
   });
-
-  if (media && media.addEventListener) {
-    media.addEventListener('change', () => {
-      if (!root.hasAttribute('data-theme')) reflectTheme(systemTheme());
-    });
-  }
 
   reflectTheme(currentTheme());
 })();
