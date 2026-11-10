@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    # Situs pastpresentfurther.com = root public_html. Hanya menyalin (tidak menghapus),
+    # jadi uploads/, invoices/, config rahasia, php.ini dan file server lain tidak tersentuh.
+    - export DEPLOYPATH=$HOME/public_html/
+    - /bin/cp -R admin assets config docs includes vendor $DEPLOYPATH
+    - /bin/cp *.php .htaccess composer.json composer.lock jlallookbook.png $DEPLOYPATH

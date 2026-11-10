@@ -1,0 +1,18 @@
+# Secret / konfigurasi server (tetap ada di server, tidak di-push)
+config/database.php
+config/rajaongkir.php
+config/b_xendit.php
+config/logs/
+error_log
+php.ini
+.user.ini
+.well-known/
+cgi-bin/
+
+# Konten runtime & arsip
+uploads/
+invoices/
+*.zip
+*.sql
+alter-that.com/
+node_modules/

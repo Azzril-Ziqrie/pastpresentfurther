@@ -1,0 +1,170 @@
+/* ══════════════════════════════════════════════════════════
+   ADMIN DESIGN SYSTEM
+   Loaded AFTER each admin page's own <style>, scoped to body.adm
+   so it restyles the shared vocabulary (wrap, hero, btn, status,
+   table-wrap, form-*, …) without touching page logic.
+═══════════════════════════════════════════════════════════ */
+:root{
+  --adm-bg:#f5f5f7; --adm-card:#fff; --adm-ink:#1d1d1f; --adm-mute:#6e6e73; --adm-faint:#a1a1a6;
+  --adm-line:rgba(0,0,0,.08); --adm-line-strong:#d2d2d7;
+  --adm-accent:#0071e3; --adm-ok:#1f8a4c; --adm-warn:#b26a00; --adm-bad:#c62828;
+  --adm-side:244px; --adm-top:56px; --adm-r:14px;
+  --adm-ease:cubic-bezier(.32,.72,0,1);
+}
+body.adm{margin:0;padding-left:var(--adm-side);background:var(--adm-bg);color:var(--adm-ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;text-transform:none;letter-spacing:0}
+body.adm *{box-sizing:border-box}
+body.adm a{color:inherit;text-decoration:none}
+
+/* ── Sidebar ─────────────────────────────────────────── */
+.adm-side{position:fixed;inset:0 auto 0 0;width:var(--adm-side);display:flex;flex-direction:column;gap:6px;padding:16px 12px;background:#fff;border-right:1px solid var(--adm-line);z-index:50;overflow-y:auto}
+.adm-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px;font-weight:650;font-size:14px;letter-spacing:-.01em}
+.adm-brand img{width:30px;height:30px;object-fit:contain;border-radius:8px}
+.adm-brand small{display:block;font-weight:500;font-size:11px;color:var(--adm-mute)}
+.adm-nav{display:flex;flex-direction:column;gap:14px;flex:1}
+.adm-group__title{padding:0 10px 4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--adm-faint)}
+.adm-link{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:9px;color:#3a3a3c;font-weight:500;transition:background .15s,color .15s}
+.adm-link svg{flex:none;color:var(--adm-mute)}
+.adm-link:hover{background:rgba(0,0,0,.05)}
+.adm-link.is-active{background:var(--adm-ink);color:#fff}
+.adm-link.is-active svg{color:#fff}
+.adm-store{margin-top:8px;border:1px solid var(--adm-line-strong)}
+
+/* ── Top bar (glass) ─────────────────────────────────── */
+.adm-top{position:sticky;top:0;z-index:40;height:var(--adm-top);display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(245,245,247,.72);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--adm-line)}
+.adm-top__title{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.adm-top__link{margin-left:auto;font-size:13px;color:var(--adm-accent);font-weight:500}
+.adm-burger{display:none;width:34px;height:34px;flex-direction:column;justify-content:center;gap:4px;padding:0 8px;cursor:pointer;border-radius:8px}
+.adm-burger i{display:block;height:1.5px;background:var(--adm-ink);border-radius:2px}
+.adm-scrim{display:none}
+
+/* ── Page frame ──────────────────────────────────────── */
+body.adm .layout{gap:16px}
+body.adm .wrap,body.adm .layout,body.adm main.container{max-width:1280px;margin:0 auto;padding:28px 28px 72px;border:0;min-height:0;background:transparent}
+body.adm .hero{display:block;padding:0 0 24px;border:0;background:transparent}
+body.adm .hero:has(> .hero-right > *){display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:28px}
+body.adm .hero:has(> .hero-right:empty){display:block}
+body.adm .hero-right{padding:0;border:0}
+body.adm .eyebrow{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--adm-mute)}
+body.adm .headline{margin:0;max-width:none;font-size:30px;line-height:1.15;font-weight:650;letter-spacing:-.025em;text-transform:none}
+body.adm .subcopy{margin:10px 0 0;max-width:620px;font-size:14px;line-height:1.6;color:var(--adm-mute)}
+body.adm .hero-actions,body.adm .page-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+
+/* ── Buttons ─────────────────────────────────────────── */
+body.adm .btn,body.adm .btn-secondary,body.adm .btn-sm,body.adm button.btn,body.adm .filter{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--adm-ink);background:var(--adm-ink);color:#fff;font:inherit;font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+body.adm .btn:hover{background:#000}
+body.adm .btn-secondary,body.adm .filter{background:#fff;color:var(--adm-ink);border-color:var(--adm-line-strong)}
+body.adm .btn-secondary:hover,body.adm .filter:hover{background:#f0f0f2}
+body.adm .filter.active{background:var(--adm-ink);color:#fff;border-color:var(--adm-ink)}
+body.adm .btn-sm{height:30px;padding:0 12px;font-size:12px}
+body.adm .btn:active,body.adm .btn-secondary:active{transform:scale(.98);transition-duration:0s}
+body.adm .btn:disabled{opacity:.5;cursor:default}
+body.adm .danger,body.adm .btn.danger{background:#fff;color:var(--adm-bad);border-color:rgba(198,40,40,.35)}
+
+/* ── Filters / small actions (orders etc.) ───────────── */
+body.adm .filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+body.adm .mini-actions{display:flex;gap:6px;flex-wrap:nowrap}
+body.adm .mini-btn{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 12px;border-radius:9px;border:1px solid var(--adm-ink);background:var(--adm-ink);color:#fff;font:inherit;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;white-space:nowrap;cursor:pointer;transition:background .15s}
+body.adm .mini-btn:hover{background:#000}
+body.adm .mini-btn.secondary{background:#fff;color:var(--adm-ink);border-color:var(--adm-line-strong)}
+body.adm .mini-btn.secondary:hover{background:#f0f0f2}
+body.adm td:first-child{white-space:nowrap}
+
+/* ── Cards / sections / panels ───────────────────────── */
+body.adm .section-grid{display:grid;gap:16px;border:0}
+body.adm .grid,body.adm .content{gap:16px}
+body.adm .section,body.adm .panel{min-width:0;background:var(--adm-card);border:1px solid var(--adm-line);border-radius:var(--adm-r);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+body.adm .section:nth-child(2n){border-right:1px solid var(--adm-line)}
+body.adm .section-head,body.adm .panel-head,body.adm .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border:0;border-bottom:1px solid var(--adm-line);background:transparent;font-size:14px;font-weight:650;letter-spacing:-.01em;text-transform:none}
+body.adm .section-body,body.adm .panel-body,body.adm .content-body{padding:16px 18px;background:transparent}
+body.adm .mini-link{font-size:13px;font-weight:500;color:var(--adm-accent);text-transform:none;letter-spacing:0}
+
+/* ── Stats ───────────────────────────────────────────── */
+body.adm .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;border:0}
+body.adm .stat-card{padding:16px 18px;min-height:0;background:var(--adm-card);border:1px solid var(--adm-line);border-radius:12px}
+body.adm .stat-label{margin:0 0 8px;font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--adm-mute)}
+body.adm .stat-value{font-size:28px;font-weight:650;letter-spacing:-.02em;line-height:1}
+
+/* ── Tables ──────────────────────────────────────────── */
+body.adm .table-wrap,body.adm .table-outer{overflow:auto;border:1px solid var(--adm-line);border-radius:12px;background:#fff}
+body.adm table{width:100%;border-collapse:collapse}
+body.adm th{padding:10px 14px;background:#fafafa;border-bottom:1px solid var(--adm-line);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--adm-mute);text-align:left;white-space:nowrap}
+body.adm td{padding:12px 14px;border-bottom:1px solid var(--adm-line);font-size:13px;vertical-align:middle;background:transparent}
+body.adm tbody tr:last-child td{border-bottom:0}
+body.adm tbody tr{transition:background .12s}
+body.adm tbody tr:hover{background:#fafafa}
+body.adm td a:not(.btn):not(.btn-secondary):not(.btn-sm):hover{color:var(--adm-accent)}
+body.adm .thumb-mini{width:48px;height:48px;border:1px solid var(--adm-line);border-radius:8px;background:#fff;object-fit:cover}
+
+/* ── Status pills ────────────────────────────────────── */
+body.adm .status,body.adm .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:0;border-radius:999px;background:#ececf0;color:#3a3a3c;font-size:12px;font-weight:600;letter-spacing:0;text-transform:capitalize}
+body.adm .status::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--adm-faint)}
+body.adm .status.paid,body.adm .status.live,body.adm .status.active{background:#e6f5ec;color:var(--adm-ok)}
+body.adm .status.paid::before,body.adm .status.live::before,body.adm .status.active::before{background:var(--adm-ok)}
+body.adm .status.waiting{background:#fff3df;color:var(--adm-warn)}
+body.adm .status.waiting::before{background:var(--adm-warn)}
+body.adm .status.failed{background:#fdeaea;color:var(--adm-bad)}
+body.adm .status.failed::before{background:var(--adm-bad)}
+body.adm .status.pending,body.adm .status.draft{background:#ececf0;color:#3a3a3c}
+
+/* ── Forms ───────────────────────────────────────────── */
+body.adm label,body.adm .form-label{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--adm-mute)}
+body.adm input[type=text],body.adm input[type=email],body.adm input[type=number],body.adm input[type=password],body.adm input[type=url],body.adm input[type=date],body.adm input[type=datetime-local],body.adm input[type=search],body.adm select,body.adm textarea,body.adm .form-input,body.adm .form-select,body.adm .form-textarea{width:100%;min-height:40px;padding:9px 12px;border:1px solid var(--adm-line-strong);border-radius:10px;background:#fff;color:var(--adm-ink);font:inherit;font-size:14px;letter-spacing:0;text-transform:none;outline:none;transition:border-color .15s,box-shadow .15s}
+body.adm textarea,body.adm .form-textarea{min-height:96px;resize:vertical}
+body.adm input:focus,body.adm select:focus,body.adm textarea:focus{border-color:var(--adm-accent);box-shadow:0 0 0 3px rgba(0,113,227,.18)}
+body.adm input[type=file]{width:100%;padding:8px 10px;border:1px dashed var(--adm-line-strong);border-radius:10px;background:#fafafa;font:inherit;font-size:13px}
+body.adm input[type=checkbox],body.adm input[type=radio]{width:auto;min-height:0;accent-color:var(--adm-ink)}
+body.adm .form-group,body.adm .field,body.adm .form-row{margin-bottom:14px}
+body.adm .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+body.adm .form-help,body.adm .form-hint,body.adm .helper,body.adm .hint-bar{font-size:12px;color:var(--adm-faint);text-transform:none;letter-spacing:0}
+
+/* ── Alerts ──────────────────────────────────────────── */
+body.adm .alert,body.adm .notice{margin:0 0 16px;padding:12px 14px;border:1px solid var(--adm-line-strong);border-radius:12px;background:#fff;font-size:13px;text-transform:none;letter-spacing:0}
+body.adm .alert.success,body.adm .success{background:#e6f5ec;border-color:rgba(31,138,76,.3);color:#14693a}
+body.adm .alert.error,body.adm .error{background:#fdeaea;border-color:rgba(198,40,40,.3);color:#9d1f1f}
+
+/* ── Page titles used by detail pages ─────────────────── */
+body.adm .page-header{padding:0 0 18px;border:0;background:transparent}
+body.adm .title{margin:0;font-size:28px;font-weight:650;letter-spacing:-.025em;text-transform:none}
+body.adm .sub{margin:6px 0 0;font-size:14px;color:var(--adm-mute);text-transform:none;letter-spacing:0}
+
+/* ── Plain buttons inside tables / action cells ───────── */
+body.adm td button:not([class]),body.adm td input[type=submit],body.adm td input[type=button]{display:inline-flex;align-items:center;height:30px;padding:0 12px;border:1px solid var(--adm-line-strong);border-radius:9px;background:#fff;color:var(--adm-ink);font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+body.adm td button:not([class]):hover{background:#f0f0f2}
+
+/* ── Misc legacy classes ─────────────────────────────── */
+body.adm .btn-link{display:inline-flex;align-items:center;height:38px;padding:0 16px;border:1px solid var(--adm-line-strong);border-radius:10px;background:#fff;color:var(--adm-ink);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;transition:background .15s}
+body.adm .btn-link:hover{background:#f0f0f2}
+body.adm .form-box,body.adm .info-box{padding:16px;border:1px solid var(--adm-line);border-radius:12px;background:#fafafa}
+body.adm .head{display:block;padding:0 0 18px;border:0}
+body.adm main h1,body.adm .page-title{text-transform:none;letter-spacing:-.025em;font-weight:650}
+body.adm .subnav{display:none} /* replaced by the grouped sidebar */
+
+/* ── Sub-nav (admin_products) / misc ─────────────────── */
+body.adm .subnav{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px;padding:0;border:0;background:transparent}
+body.adm .subnav-link{padding:6px 12px;border:1px solid var(--adm-line-strong);border-radius:999px;background:#fff;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0}
+body.adm .row-actions,body.adm .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media(max-width:1100px){
+  body.adm .hero:has(> .hero-right > *),body.adm .section-grid{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  body.adm{padding-left:0}
+  .adm-side{transform:translateX(-100%);transition:transform .35s var(--adm-ease);box-shadow:none}
+  .adm-nav-toggle:checked~.adm-side{transform:none;box-shadow:0 0 40px rgba(0,0,0,.18)}
+  .adm-scrim{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s}
+  .adm-nav-toggle:checked~.adm-scrim{display:block;opacity:1;pointer-events:auto}
+  .adm-burger{display:flex}
+  .adm-top{padding:0 16px}
+  body.adm .wrap,body.adm .layout,body.adm main.container{padding:20px 16px 56px}
+  body.adm .headline{font-size:24px}
+  body.adm .stats,body.adm .form-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  body.adm .stats,body.adm .form-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .adm-side,.adm-scrim,body.adm *{transition-duration:.01ms!important}
+}

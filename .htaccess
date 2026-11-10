@@ -1,0 +1,69 @@
+# ── Enable URL Rewriting ─────────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ── Legacy media URLs (served from assets/images/…) ──
+    RewriteRule ^11newlogo1?\.png$   assets/images/brand/logo.png          [L,NC]
+    RewriteRule ^1122logoppfp\.png$  assets/images/brand/logo-admin.png    [L,NC]
+    RewriteRule ^1212ppf\.jpeg$      assets/images/site/home-hero.jpg      [L,NC]
+    RewriteRule ^about1\.jpg$        assets/images/site/about-photo.jpg    [L,NC]
+    RewriteRule ^about\.jpg$         assets/images/site/about.jpg          [L,NC]
+    RewriteRule ^contact\.jpg$       assets/images/site/contact-photo.jpg  [L,NC]
+    RewriteRule ^(paypal|permata|qris-logo)\.png$ assets/images/payment/$1.png [L,NC]
+    RewriteRule ^qris\.jpg$          assets/images/payment/qris.jpg        [L,NC]
+
+    # ── Never expose internal folders / non-public files ─────
+    RewriteRule ^(includes|vendor|docs|memory|alter-that\.com)(/|$) - [F,L]
+    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|error_log)$ - [F,L,NC]
+
+    # ── Clean URLs: hide the .php extension ──────────────────
+    # 1) GET/HEAD requests for /something.php are redirected to /something
+    #    (query string is kept). THE_REQUEST holds the ORIGINAL request line,
+    #    so the internal rewrite in step 3 can never loop back into this rule.
+    #    POST requests (forms, fetch) are left alone so they keep their body,
+    #    and config/ stays as-is because it only serves JSON endpoints.
+    RewriteCond %{THE_REQUEST} ^(GET|HEAD)\s+[^?\s]*\.php([?\s]|$) [NC]
+    RewriteCond %{REQUEST_URI} !/config/ [NC]
+    RewriteCond %{REQUEST_URI} ^(.*/)?([^/]+)\.php$ [NC]
+    RewriteRule ^ %1%2 [R=301,L]
+
+    # 2) Real files and folders are served as they are
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3) Extensionless URL -> matching .php file, at any depth
+    #    (/shop -> shop.php, /admin/dashboard -> admin/dashboard.php)
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+)$ $1.php [L,QSA]
+</IfModule>
+
+# ── Security: hide sensitive files ────────────────────
+<FilesMatch "\.(env|ini|log|lock|sh|sql|bak|config|json|md|yml|yaml|gitignore|htaccess|htpasswd)$|^error_log$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ── Block directory listing ───────────────────────────
+Options -Indexes
+
+# ── Force UTF-8 ───────────────────────────────────────
+AddDefaultCharset UTF-8
+
+# ── Compression ───────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# ── Browser Caching ───────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg     "access plus 1 year"
+    ExpiresByType image/jpeg    "access plus 1 year"
+    ExpiresByType image/png     "access plus 1 year"
+    ExpiresByType image/webp    "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css      "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
